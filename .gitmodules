@@ -1,3 +1,9 @@
 [submodule "oneTBB"]
 	path = oneTBB
 	url = https://github.com/oneapi-src/oneTBB
+[submodule "embree"]
+	path = embree
+	url = https://github.com/embree/embree.git
+[submodule "oidn"]
+	path = oidn
+	url = https://github.com/OpenImageDenoise/oidn
