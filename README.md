@@ -1,4 +1,4 @@
-# RenderFFI
+# RenderLibs
 
 This metaproject compiles multiple rendering libraries and bundles them such that they are easy to use in an FFI (foreign function interface) setting.
 
