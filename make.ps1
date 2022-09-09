@@ -116,25 +116,25 @@ build "embree" @(
 
 if ([environment]::OSVersion::IsLinux())
 {
-    $rpath = '-DCMAKE_INSTALL_RPATH $ORIGIN'
+    $rpath = '-DCMAKE_INSTALL_RPATH=$ORIGIN'
 }
 elseif ([environment]::OSVersion::IsMacOS())
 {
-    $rpath = '-DCMAKE_INSTALL_RPATH @loader_path'
+    $rpath = '-DCMAKE_INSTALL_RPATH=@loader_path'
 }
 
 build "openpgl" @(
     "-DOPENPGL_TBB_ROOT=../../install/$OS"
-    "-Dembree_DIR=../../install/$OS/lib/cmake/embree-3.13.4"
+    "-DCMAKE_PREFIX_PATH=../../install/$OS"
     $rpath
 )
+
+cd ..
 
 # Delete symlinks because GitHub Actions will replace them by copies of the file
 # Instead, make sure that the filenames match what is required by the dependents
 if ([environment]::OSVersion::IsLinux())
 {
     find ./install -type l -delete
-    mv libtbb.so.12.8 libtbb.so.12
+    mv ./install/linux/lib/libtbb.so.12.8 ./install/linux/lib/libtbb.so.12
 }
-
-cd ..
