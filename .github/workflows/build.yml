@@ -10,9 +10,14 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone
+      uses: actions/checkout@v2
       with:
         submodules: recursive
+        lfs: true
+
+    - name: Checkout LFS objects
+      run: git lfs checkout
 
     - name: Build
       working-directory: ${{github.workspace}}

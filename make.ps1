@@ -72,8 +72,11 @@ function build($name, [String[]]$cmakeArgs)
     echo $extra
 
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="../../install/$OS" $cmakeArgs "../../$name" $extra
+    if (-not $?) { throw "CMake configure failed" }
     cmake --build . --config Release
+    if (-not $?) { throw "Build failed" }
     cmake --install . --config Release
+    if (-not $?) { throw "Install failed" }
     cd ..
 }
 
