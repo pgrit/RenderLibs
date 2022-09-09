@@ -24,7 +24,7 @@ if ([environment]::OSVersion::IsLinux())
 
     if (-not(Test-Path -Path "ispc.zip" -PathType Leaf))
     {
-        wget "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-linux.tar.gz" -O "ispc.tar.gz"
+        wget -q "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-linux.tar.gz" -O "ispc.tar.gz"
         tar -xf ispc.tar.gz
     }
     $ispc = "../ispc-v$ispcVersion-linux/bin/ispc"
@@ -35,7 +35,7 @@ elseif ([environment]::OSVersion::IsMacOS())
 
     if (-not(Test-Path -Path "ispc.zip" -PathType Leaf))
     {
-        wget "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-macOS.tar.gz" -O "ispc.tar.gz"
+        wget -q "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-macOS.tar.gz" -O "ispc.tar.gz"
         tar -xf ispc.tar.gz
     }
     $ispc = "../ispc-v$ispcVersion-macOS/bin/ispc"
@@ -67,7 +67,7 @@ function build($name, [String[]]$cmakeArgs)
     if ([environment]::OSVersion::IsMacOS())
     {
         # On OSX, we build a fat binary with both x86_64 and arm64 support
-        $extra = '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+        # $extra = '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
     }
     echo $extra
 
@@ -113,5 +113,28 @@ build "embree" @(
     "-DEMBREE_ISA_AVX=ON"
     "-DEMBREE_ISA_NEON=ON"
 )
+
+if ([environment]::OSVersion::IsLinux())
+{
+    $rpath = '-DCMAKE_INSTALL_RPATH $ORIGIN'
+}
+elseif ([environment]::OSVersion::IsMacOS())
+{
+    $rpath = '-DCMAKE_INSTALL_RPATH @loader_path'
+}
+
+build "openpgl" @(
+    "-DOPENPGL_TBB_ROOT=../../install/$OS"
+    "-Dembree_DIR=../../install/$OS/lib/cmake/embree-3.13.4"
+    $rpath
+)
+
+# Delete symlinks because GitHub Actions will replace them by copies of the file
+# Instead, make sure that the filenames match what is required by the dependents
+if ([environment]::OSVersion::IsLinux())
+{
+    find ./install -type l -delete
+    mv libtbb.so.12.8 libtbb.so.12
+}
 
 cd ..

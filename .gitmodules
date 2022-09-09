@@ -7,3 +7,6 @@
 [submodule "oidn"]
 	path = oidn
 	url = https://github.com/OpenImageDenoise/oidn
+[submodule "openpgl"]
+	path = openpgl
+	url = https://github.com/OpenPathGuidingLibrary/openpgl.git
