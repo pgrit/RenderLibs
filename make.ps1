@@ -2,16 +2,17 @@ mkdir install
 mkdir build
 
 # Patch the Embree and OIDN CMake files to have a more useful RPATH
-$oldMac = 'SET(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")'
-$newMac = 'SET(CMAKE_INSTALL_RPATH "@loader_path;@loader_path/../${CMAKE_INSTALL_LIBDIR}")'
-$oldLinux = 'SET(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")'
-$newLinux = 'SET(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")'
+function rpathPatch($content)
+{
+    $oldMac = '"@loader_path/../'
+    $newMac = '"@loader_path;@loader_path/../'
+    $oldLinux = '"$ORIGIN/../'
+    $newLinux = '"$ORIGIN;$ORIGIN/../'
+    return $content.Replace("$oldMac", "$newMac").Replace("$oldLinux", "$newLinux")
+}
 
-$originalEmbree = Get-Content -path embree/common/cmake/package.cmake -Raw
-$originalEmbree.Replace("$oldMac", "$newMac").Replace("$oldLinux", "$newLinux") | Set-Content -path embree/common/cmake/package.cmake
-
-$originalOidn = Get-Content -path oidn/cmake/oidn_package.cmake -Raw
-$originalOidn.Replace("$oldMac", "$newMac").Replace("$oldLinux", "$newLinux") | Set-Content -path oidn/cmake/oidn_package.cmake
+rpathPatch(Get-Content -path embree/common/cmake/package.cmake -Raw) | Set-Content -path embree/common/cmake/package.cmake
+rpathPatch(Get-Content -path oidn/cmake/oidn_package.cmake -Raw) | Set-Content -path oidn/cmake/oidn_package.cmake
 
 cd build
 
@@ -62,7 +63,15 @@ function build($name, [String[]]$cmakeArgs)
     mkdir "$name"
     cd "$name"
     echo $cmakeArgs
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="../../install/$OS" $cmakeArgs "../../$name"
+
+    if ([environment]::OSVersion::IsMacOS())
+    {
+        # On OSX, we build a fat binary with both x86_64 and arm64 support
+        $extra = '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    }
+    echo $extra
+
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="../../install/$OS" $cmakeArgs "../../$name" $extra
     cmake --build . --config Release
     cmake --install . --config Release
     cd ..
