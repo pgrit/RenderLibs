@@ -208,7 +208,8 @@ elseif ([environment]::OSVersion::IsMacOS())
 build "openpgl" @(
     "-DOPENPGL_TBB_ROOT=../../install/$OS"
     "-DCMAKE_PREFIX_PATH=../../install/$OS"
-    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    # '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    '-DCMAKE_OSX_ARCHITECTURES="x86_64"' # openpgl currently does not compile on arm64 because of outdated embree headers inside the repo
     '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     $rpath
 )
