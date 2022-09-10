@@ -64,14 +64,7 @@ function build($name, [String[]]$cmakeArgs)
     cd "$name"
     echo $cmakeArgs
 
-    if ([environment]::OSVersion::IsMacOS())
-    {
-        # On OSX, we build a fat binary with both x86_64 and arm64 support
-        $extra = '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    }
-    echo $extra
-
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="../../install/$OS" $cmakeArgs "../../$name" $extra
+    cmake -DCMAKE_BUILD_TYPE=Release $cmakeArgs "../../$name"
     if (-not $?) { throw "CMake configure failed" }
     cmake --build . --config Release
     if (-not $?) { throw "Build failed" }
@@ -80,15 +73,50 @@ function build($name, [String[]]$cmakeArgs)
     cd ..
 }
 
-build "oneTBB" "-DTBB_TEST=OFF"
-
-build "oidn" @(
-    "-DTBB_ROOT=../../install/$OS"
-    "-DISPC_EXECUTABLE=$ispc"
-    "-DISPC_VERSION=$ispcVersion"
-    "-DOIDN_APPS=OFF"
-    "-DOIDN_ZIP_MODE=ON"
+build "oneTBB" @(
+    "-DTBB_TEST=OFF"
+    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
 )
+
+# Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
+if ([environment]::OSVersion::IsMacOS())
+{
+    # Build once for x86-64 with DNNL
+    build "oidn" @(
+        "-DTBB_ROOT=../../install/$OS"
+        "-DISPC_EXECUTABLE=$ispc"
+        "-DISPC_VERSION=$ispcVersion"
+        "-DOIDN_APPS=OFF"
+        "-DOIDN_ZIP_MODE=ON"
+        '-DOIDN_NEURAL_RUNTIME="DNNL"'
+        '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+    )
+
+    # And separately for ARM64 with BNNS
+    build "oidn" @(
+        "-DTBB_ROOT=../../install/$OS"
+        "-DISPC_EXECUTABLE=$ispc"
+        "-DISPC_VERSION=$ispcVersion"
+        "-DOIDN_APPS=OFF"
+        "-DOIDN_ZIP_MODE=ON"
+        '-DOIDN_NEURAL_RUNTIME="BNNS"'
+        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS-arm64"
+    )
+}
+else
+{
+    build "oidn" @(
+        "-DTBB_ROOT=../../install/$OS"
+        "-DISPC_EXECUTABLE=$ispc"
+        "-DISPC_VERSION=$ispcVersion"
+        "-DOIDN_APPS=OFF"
+        "-DOIDN_ZIP_MODE=ON"
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+    )
+}
 
 build "embree" @(
     "-DEMBREE_ISPC_SUPPORT=OFF"
@@ -112,6 +140,9 @@ build "embree" @(
     "-DEMBREE_ISA_AVX512=OFF"
     "-DEMBREE_ISA_AVX=ON"
     "-DEMBREE_ISA_NEON=ON"
+
+    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
 )
 
 if ([environment]::OSVersion::IsLinux())
@@ -126,6 +157,8 @@ elseif ([environment]::OSVersion::IsMacOS())
 build "openpgl" @(
     "-DOPENPGL_TBB_ROOT=../../install/$OS"
     "-DCMAKE_PREFIX_PATH=../../install/$OS"
+    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
     $rpath
 )
 
