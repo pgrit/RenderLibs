@@ -14,6 +14,12 @@ function rpathPatch($content)
 rpathPatch(Get-Content -path embree/common/cmake/package.cmake -Raw) | Set-Content -path embree/common/cmake/package.cmake
 rpathPatch(Get-Content -path oidn/cmake/oidn_package.cmake -Raw) | Set-Content -path oidn/cmake/oidn_package.cmake
 
+# Path OIDN CMake files for cross-compile on Mac
+$patch = (Get-Content -path oidn/cmake/oidn_platform.cmake -Raw)
+$patch = $patch.Replace('set(OIDN_ARCH "ARM64")', 'set(OIDN_ARCH "ARM64" CACHE STRING " ")')
+$patch = $patch.Replace('set(OIDN_ARCH "X64")', 'set(OIDN_ARCH "X64" CACHE STRING " ")')
+Set-Content -path oidn/cmake/oidn_platform.cmake $patch
+
 cd build
 
 # Download ISPC
@@ -92,6 +98,7 @@ if ([environment]::OSVersion::IsMacOS())
         '-DOIDN_NEURAL_RUNTIME="DNNL"'
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        '-DOIDN_ARCH="X64"'
     )
 
     # And separately for ARM64 with BNNS
@@ -104,6 +111,7 @@ if ([environment]::OSVersion::IsMacOS())
         '-DOIDN_NEURAL_RUNTIME="BNNS"'
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+        '-DOIDN_ARCH="ARM64"'
     )
 }
 else
