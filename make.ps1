@@ -67,6 +67,7 @@ function build($name, [String[]]$cmakeArgs)
     if ([environment]::OSVersion::IsMacOS())
     {
         # On OSX, we build a fat binary with both x86_64 and arm64 support
+        # TODO this does not currently compile for OpenImageDenoise
         # $extra = '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
     }
     echo $extra
@@ -137,4 +138,9 @@ if ([environment]::OSVersion::IsLinux())
 {
     find ./install -type l -delete
     mv ./install/linux/lib/libtbb.so.12.8 ./install/linux/lib/libtbb.so.12
+}
+elseif ([environment]::OSVersion::IsMacOS())
+{
+    find ./install -type l -delete
+    mv ./install/linux/lib/libtbb.12.8.dylib ./install/linux/lib/libtbb.12.dylib
 }
