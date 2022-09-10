@@ -113,6 +113,50 @@ if ([environment]::OSVersion::IsMacOS())
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
         '-DOIDN_ARCH="ARM64"'
     )
+
+    build "embree" @(
+        "-DEMBREE_ISPC_SUPPORT=OFF"
+        "-DEMBREE_ZIP_MODE=ON"
+
+        # Disable all unused features to shorten build times
+        "-DEMBREE_TUTORIALS=OFF"
+        "-DEMBREE_FILTER_FUNCTION=OFF"
+        "-DEMBREE_GEOMETRY_QUAD=OFF"
+        "-DEMBREE_GEOMETRY_CURVE=OFF"
+        "-DEMBREE_GEOMETRY_GRID=OFF"
+        "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
+        "-DEMBREE_GEOMETRY_INSTANCE=OFF"
+        "-DEMBREE_GEOMETRY_USER=ON"
+
+        # Enable only AVX and AVX2 for faster github actions deployment
+        "-DEMBREE_MAX_ISA=NONE"
+        "-DEMBREE_ISA_AVX2=ON"
+        "-DEMBREE_ISA_SSE2=OFF"
+        "-DEMBREE_ISA_SSE42=OFF"
+        "-DEMBREE_ISA_AVX512=OFF"
+        "-DEMBREE_ISA_AVX=ON"
+
+        '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+    )
+
+    build "embree" @(
+        "-DEMBREE_ISPC_SUPPORT=OFF"
+        "-DEMBREE_ZIP_MODE=ON"
+
+        # Disable all unused features to shorten build times
+        "-DEMBREE_TUTORIALS=OFF"
+        "-DEMBREE_FILTER_FUNCTION=OFF"
+        "-DEMBREE_GEOMETRY_QUAD=OFF"
+        "-DEMBREE_GEOMETRY_CURVE=OFF"
+        "-DEMBREE_GEOMETRY_GRID=OFF"
+        "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
+        "-DEMBREE_GEOMETRY_INSTANCE=OFF"
+        "-DEMBREE_GEOMETRY_USER=ON"
+
+        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+    )
 }
 else
 {
@@ -124,34 +168,33 @@ else
         "-DOIDN_ZIP_MODE=ON"
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     )
+
+    build "embree" @(
+        "-DEMBREE_ISPC_SUPPORT=OFF"
+        "-DEMBREE_ZIP_MODE=ON"
+
+        # Disable all unused features to shorten build times
+        "-DEMBREE_TUTORIALS=OFF"
+        "-DEMBREE_FILTER_FUNCTION=OFF"
+        "-DEMBREE_GEOMETRY_QUAD=OFF"
+        "-DEMBREE_GEOMETRY_CURVE=OFF"
+        "-DEMBREE_GEOMETRY_GRID=OFF"
+        "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
+        "-DEMBREE_GEOMETRY_INSTANCE=OFF"
+        "-DEMBREE_GEOMETRY_USER=ON"
+
+        # Enable only AVX, AVX2 and NEON for faster github actions deployment
+        "-DEMBREE_MAX_ISA=NONE"
+        "-DEMBREE_ISA_AVX2=ON"
+        "-DEMBREE_ISA_SSE2=OFF"
+        "-DEMBREE_ISA_SSE42=OFF"
+        "-DEMBREE_ISA_AVX512=OFF"
+        "-DEMBREE_ISA_AVX=ON"
+        "-DEMBREE_ISA_NEON=ON"
+
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+    )
 }
-
-build "embree" @(
-    "-DEMBREE_ISPC_SUPPORT=OFF"
-    "-DEMBREE_ZIP_MODE=ON"
-
-    # Disable all unused features to shorten build times
-    "-DEMBREE_TUTORIALS=OFF"
-    "-DEMBREE_FILTER_FUNCTION=OFF"
-    "-DEMBREE_GEOMETRY_QUAD=OFF"
-    "-DEMBREE_GEOMETRY_CURVE=OFF"
-    "-DEMBREE_GEOMETRY_GRID=OFF"
-    "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
-    "-DEMBREE_GEOMETRY_INSTANCE=OFF"
-    "-DEMBREE_GEOMETRY_USER=ON"
-
-    # Enable only AVX, AVX2 and NEON for faster github actions deployment
-    "-DEMBREE_MAX_ISA=NONE"
-    "-DEMBREE_ISA_AVX2=ON"
-    "-DEMBREE_ISA_SSE2=OFF"
-    "-DEMBREE_ISA_SSE42=OFF"
-    "-DEMBREE_ISA_AVX512=OFF"
-    "-DEMBREE_ISA_AVX=ON"
-    "-DEMBREE_ISA_NEON=ON"
-
-    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
-)
 
 if ([environment]::OSVersion::IsLinux())
 {
