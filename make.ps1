@@ -85,6 +85,15 @@ build "oneTBB" @(
     '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
 )
 
+if ([environment]::OSVersion::IsLinux())
+{
+    $rpath = '-DCMAKE_INSTALL_RPATH=$ORIGIN'
+}
+elseif ([environment]::OSVersion::IsMacOS())
+{
+    $rpath = '-DCMAKE_INSTALL_RPATH=@loader_path'
+}
+
 # Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
 if ([environment]::OSVersion::IsMacOS())
 {
@@ -157,6 +166,23 @@ if ([environment]::OSVersion::IsMacOS())
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
     )
+
+    build "openpgl" @(
+        "-DOPENPGL_TBB_ROOT=../../install/$OS"
+        "-DCMAKE_PREFIX_PATH=../../install/$OS"
+        '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        $rpath
+    )
+
+    # TODO openpgl does not compile on arm64 mac at the moment (outdated embree headers)
+    # build "openpgl" @(
+    #     "-DOPENPGL_TBB_ROOT=../../install/$OS"
+    #     "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
+    #     '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+    #     '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+    #     $rpath
+    # )
 }
 else
 {
@@ -194,37 +220,26 @@ else
 
         '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     )
-}
 
-if ([environment]::OSVersion::IsLinux())
-{
-    $rpath = '-DCMAKE_INSTALL_RPATH=$ORIGIN'
+    build "openpgl" @(
+        "-DOPENPGL_TBB_ROOT=../../install/$OS"
+        "-DCMAKE_PREFIX_PATH=../../install/$OS"
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        $rpath
+    )
 }
-elseif ([environment]::OSVersion::IsMacOS())
-{
-    $rpath = '-DCMAKE_INSTALL_RPATH=@loader_path'
-}
-
-build "openpgl" @(
-    "-DOPENPGL_TBB_ROOT=../../install/$OS"
-    "-DCMAKE_PREFIX_PATH=../../install/$OS"
-    # '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_OSX_ARCHITECTURES="x86_64"' # openpgl currently does not compile on arm64 because of outdated embree headers inside the repo
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
-    $rpath
-)
 
 cd ..
 
 # Delete symlinks because GitHub Actions will replace them by copies of the file
-# Instead, make sure that the filenames match what is required by the dependents
+# We deliberately create a second copy of TBB, because its CMake setup works in mysterious ways.
 if ([environment]::OSVersion::IsLinux())
 {
     find ./install -type l -delete
-    mv ./install/linux/lib/libtbb.so.12.8 ./install/linux/lib/libtbb.so.12
+    cp ./install/linux/lib/libtbb.so.12.8 ./install/linux/lib/libtbb.so.12
 }
 elseif ([environment]::OSVersion::IsMacOS())
 {
     find ./install -type l -delete
-    mv ./install/osx/lib/libtbb.12.8.dylib ./install/osx/lib/libtbb.12.dylib
+    cp ./install/osx/lib/libtbb.12.8.dylib ./install/osx/lib/libtbb.12.dylib
 }
