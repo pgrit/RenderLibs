@@ -76,7 +76,7 @@ function build($name, [String[]]$cmakeArgs)
 build "oneTBB" @(
     "-DTBB_TEST=OFF"
     '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
 )
 
 # Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
@@ -91,7 +91,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DOIDN_ZIP_MODE=ON"
         '-DOIDN_NEURAL_RUNTIME="DNNL"'
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     )
 
     # And separately for ARM64 with BNNS
@@ -103,7 +103,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DOIDN_ZIP_MODE=ON"
         '-DOIDN_NEURAL_RUNTIME="BNNS"'
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS-arm64"
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
     )
 }
 else
@@ -114,7 +114,7 @@ else
         "-DISPC_VERSION=$ispcVersion"
         "-DOIDN_APPS=OFF"
         "-DOIDN_ZIP_MODE=ON"
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     )
 }
 
@@ -142,7 +142,7 @@ build "embree" @(
     "-DEMBREE_ISA_NEON=ON"
 
     '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
 )
 
 if ([environment]::OSVersion::IsLinux())
@@ -158,7 +158,7 @@ build "openpgl" @(
     "-DOPENPGL_TBB_ROOT=../../install/$OS"
     "-DCMAKE_PREFIX_PATH=../../install/$OS"
     '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"
+    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
     $rpath
 )
 
