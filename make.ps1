@@ -175,14 +175,13 @@ if ([environment]::OSVersion::IsMacOS())
         $rpath
     )
 
-    # TODO openpgl does not compile on arm64 mac at the moment (outdated embree headers)
-    # build "openpgl" @(
-    #     "-DOPENPGL_TBB_ROOT=../../install/$OS"
-    #     "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
-    #     '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-    #     '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
-    #     $rpath
-    # )
+    build "openpgl" @(
+        "-DOPENPGL_TBB_ROOT=../../install/$OS"
+        "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
+        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+        $rpath
+    )
 }
 else
 {
