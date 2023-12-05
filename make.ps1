@@ -82,7 +82,7 @@ function build($name, [String[]]$cmakeArgs)
 build "oneTBB" @(
     "-DTBB_TEST=OFF"
     '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+    "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
 )
 
 if ([environment]::OSVersion::IsLinux())
@@ -106,7 +106,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DOIDN_ZIP_MODE=ON"
         '-DOIDN_NEURAL_RUNTIME="DNNL"'
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         '-DOIDN_ARCH="X64"'
     )
 
@@ -119,7 +119,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DOIDN_ZIP_MODE=ON"
         '-DOIDN_NEURAL_RUNTIME="BNNS"'
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         '-DOIDN_ARCH="ARM64"'
     )
 
@@ -146,7 +146,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DEMBREE_ISA_AVX=ON"
 
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
     )
 
     build "embree" @(
@@ -164,14 +164,14 @@ if ([environment]::OSVersion::IsMacOS())
         "-DEMBREE_GEOMETRY_USER=ON"
 
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
     )
 
     build "openpgl" @(
         "-DOPENPGL_TBB_ROOT=../../install/$OS"
         "-DCMAKE_PREFIX_PATH=../../install/$OS"
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         $rpath
     )
 
@@ -179,7 +179,7 @@ if ([environment]::OSVersion::IsMacOS())
         "-DOPENPGL_TBB_ROOT=../../install/$OS"
         "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'-arm64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         $rpath
     )
 }
@@ -191,7 +191,7 @@ else
         "-DISPC_VERSION=$ispcVersion"
         "-DOIDN_APPS=OFF"
         "-DOIDN_ZIP_MODE=ON"
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
     )
 
     build "embree" @(
@@ -217,13 +217,14 @@ else
         "-DEMBREE_ISA_AVX=ON"
         "-DEMBREE_ISA_NEON=ON"
 
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
     )
 
     build "openpgl" @(
+        "-DTBB_ROOT=../../install/$OS"
         "-DOPENPGL_TBB_ROOT=../../install/$OS"
         "-DCMAKE_PREFIX_PATH=../../install/$OS"
-        '-DCMAKE_INSTALL_PREFIX="../../install/'+"$OS"+'"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         $rpath
     )
 }
