@@ -231,15 +231,28 @@ else
 
 cd ..
 
+function getTBBVersion()
+{
+    $versionContent = Get-Content -path oneTBB/include/oneapi/tbb/version.h -Raw
+    $versionContent -match ".*#define TBB_VERSION_MINOR ([0-9]+).*"
+    $tbbMinorVersion = $Matches.1
+    $versionContent -match ".*#define __TBB_BINARY_VERSION ([0-9]+).*"
+    $tbbVersion = $Matches.1
+
+    return "$tbbVersion.$tbbMinorVersion"
+}
+
+$tbbVersion = getTBBVersion
+
 # Delete symlinks because GitHub Actions will replace them by copies of the file
 # We deliberately create a second copy of TBB, because its CMake setup works in mysterious ways.
 if ([environment]::OSVersion::IsLinux())
 {
     find ./install -type l -delete
-    cp ./install/linux/lib/libtbb.so.12.8 ./install/linux/lib/libtbb.so.12
+    cp ./install/linux/lib/libtbb.so.$tbbVersion ./install/linux/lib/libtbb.so.12
 }
 elseif ([environment]::OSVersion::IsMacOS())
 {
     find ./install -type l -delete
-    cp ./install/osx/lib/libtbb.12.8.dylib ./install/osx/lib/libtbb.12.dylib
+    cp ./install/osx/lib/libtbb.$tbbVersion.dylib ./install/osx/lib/libtbb.12.dylib
 }
