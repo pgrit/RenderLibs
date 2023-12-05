@@ -168,6 +168,7 @@ if ([environment]::OSVersion::IsMacOS())
     )
 
     build "openpgl" @(
+        "-DTBB_ROOT=../../install/$OS"
         "-DOPENPGL_TBB_ROOT=../../install/$OS"
         "-DCMAKE_PREFIX_PATH=../../install/$OS"
         '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
@@ -176,6 +177,7 @@ if ([environment]::OSVersion::IsMacOS())
     )
 
     build "openpgl" @(
+        "-DTBB_ROOT=../../install/$OS"
         "-DOPENPGL_TBB_ROOT=../../install/$OS"
         "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
         '-DCMAKE_OSX_ARCHITECTURES="arm64"'
