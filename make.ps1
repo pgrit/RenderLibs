@@ -234,15 +234,15 @@ cd ..
 function getTBBVersion()
 {
     $versionContent = Get-Content -path oneTBB/include/oneapi/tbb/version.h -Raw
-    $versionContent -match ".*#define TBB_VERSION_MINOR ([0-9]+).*"
-    $tbbMinorVersion = $Matches.1
-    $versionContent -match ".*#define __TBB_BINARY_VERSION ([0-9]+).*"
-    $tbbVersion = $Matches.1
+
+    $tbbVersion = ([regex]".*#define __TBB_BINARY_VERSION ([0-9]+).*").Match($versionContent).Groups[1].Value
+    $tbbMinorVersion = ([regex]".*#define TBB_VERSION_MINOR ([0-9]+).*").Match($versionContent).Groups[1].Value
 
     return "$tbbVersion.$tbbMinorVersion"
 }
 
 $tbbVersion = getTBBVersion
+echo "TBB version: $tbbVersion"
 
 # Delete symlinks because GitHub Actions will replace them by copies of the file
 # We deliberately create a second copy of TBB, because its CMake setup works in mysterious ways.
