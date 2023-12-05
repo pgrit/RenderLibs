@@ -176,14 +176,14 @@ if ([environment]::OSVersion::IsMacOS())
         $rpath
     )
 
-    build "openpgl" @(
-        "-DTBB_ROOT=../../install/$OS"
-        "-DOPENPGL_TBB_ROOT=../../install/$OS"
-        "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
-        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
-        $rpath
-    )
+    # build "openpgl" @(
+    #     "-DTBB_ROOT=../../install/$OS"
+    #     "-DOPENPGL_TBB_ROOT=../../install/$OS"
+    #     "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
+    #     '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+    #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
+    #     $rpath
+    # )
 }
 else
 {
@@ -233,28 +233,21 @@ else
 
 cd ..
 
-function getTBBVersion()
-{
-    $versionContent = Get-Content -path oneTBB/include/oneapi/tbb/version.h -Raw
-
-    $tbbVersion = ([regex]".*#define __TBB_BINARY_VERSION ([0-9]+).*").Match($versionContent).Groups[1].Value
-    $tbbMinorVersion = ([regex]".*#define TBB_VERSION_MINOR ([0-9]+).*").Match($versionContent).Groups[1].Value
-
-    return "$tbbVersion.$tbbMinorVersion"
-}
-
-$tbbVersion = getTBBVersion
-echo "TBB version: $tbbVersion"
+# Read TBB version numbers from its version.h file so we know the required .so and .dylib names
+$versionContent = Get-Content -path oneTBB/include/oneapi/tbb/version.h -Raw
+$tbbMajorVersion = ([regex]".*#define __TBB_BINARY_VERSION ([0-9]+).*").Match($versionContent).Groups[1].Value
+$tbbMinorVersion = ([regex]".*#define TBB_VERSION_MINOR ([0-9]+).*").Match($versionContent).Groups[1].Value
+$tbbVersion = "$tbbMajorVersion.$tbbMinorVersion"
 
 # Delete symlinks because GitHub Actions will replace them by copies of the file
 # We deliberately create a second copy of TBB, because its CMake setup works in mysterious ways.
 if ([environment]::OSVersion::IsLinux())
 {
     find ./install -type l -delete
-    cp ./install/linux/lib/libtbb.so.$tbbVersion ./install/linux/lib/libtbb.so.12
+    cp ./install/linux/lib/libtbb.so.$tbbVersion ./install/linux/lib/libtbb.so.$tbbMajorVersion
 }
 elseif ([environment]::OSVersion::IsMacOS())
 {
     find ./install -type l -delete
-    cp ./install/osx/lib/libtbb.$tbbVersion.dylib ./install/osx/lib/libtbb.12.dylib
+    cp "./install/osx/lib/libtbb.$tbbVersion.dylib" "./install/osx/lib/libtbb.$tbbMajorVersion.dylib"
 }
