@@ -79,12 +79,6 @@ function build($name, [String[]]$cmakeArgs)
     cd ..
 }
 
-build "oneTBB" @(
-    "-DTBB_TEST=OFF"
-    '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
-    "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-)
-
 if ([environment]::OSVersion::IsLinux())
 {
     $rpath = '-DCMAKE_INSTALL_RPATH=$ORIGIN'
@@ -97,6 +91,18 @@ elseif ([environment]::OSVersion::IsMacOS())
 # Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
 if ([environment]::OSVersion::IsMacOS())
 {
+    build "oneTBB" @(
+        "-DTBB_TEST=OFF"
+        '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+    )
+
+    build "oneTBB" @(
+        "-DTBB_TEST=OFF"
+        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
+    )
+
     # Build once for x86-64 with DNNL
     build "oidn" @(
         "-DTBB_ROOT=../../install/$OS"
@@ -112,7 +118,7 @@ if ([environment]::OSVersion::IsMacOS())
 
     # And separately for ARM64 with BNNS
     build "oidn" @(
-        "-DTBB_ROOT=../../install/$OS"
+        "-DTBB_ROOT=../../install/$OS-arm64"
         "-DISPC_EXECUTABLE=$ispc"
         "-DISPC_VERSION=$ispcVersion"
         "-DOIDN_APPS=OFF"
@@ -176,17 +182,23 @@ if ([environment]::OSVersion::IsMacOS())
         $rpath
     )
 
-    # build "openpgl" @(
-    #     "-DTBB_ROOT=../../install/$OS"
-    #     "-DOPENPGL_TBB_ROOT=../../install/$OS"
-    #     "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
-    #     '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-    #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
-    #     $rpath
-    # )
+    build "openpgl" @(
+        "-DTBB_ROOT=../../install/$OS-arm64"
+        "-DOPENPGL_TBB_ROOT=../../install/$OS-arm64"
+        "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
+        '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
+        $rpath
+    )
 }
 else
 {
+    build "oneTBB" @(
+        "-DTBB_TEST=OFF"
+        '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+        "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+    )
+
     build "oidn" @(
         "-DTBB_ROOT=../../install/$OS"
         "-DISPC_EXECUTABLE=$ispc"
