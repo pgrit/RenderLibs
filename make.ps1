@@ -99,11 +99,11 @@ try {
     # Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
     if ([environment]::OSVersion::IsMacOS())
     {
-        build "oneTBB" @(
-            "-DTBB_TEST=OFF"
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-            "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-        )
+        # build "oneTBB" @(
+        #     "-DTBB_TEST=OFF"
+        #     '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+        # )
 
         build "oneTBB" @(
             "-DTBB_TEST=OFF"
@@ -111,19 +111,19 @@ try {
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
-        # Build once for x86-64 with DNNL
-        build "oidn" @(
-            "-DTBB_ROOT=../../install/$OS"
-            "-DISPC_EXECUTABLE=$ispc"
-            "-DISPC_VERSION=$ispcVersion"
-            "-DOIDN_APPS=OFF"
-            "-DOIDN_ZIP_MODE=ON"
-            '-DOIDN_NEURAL_RUNTIME="DNNL"'
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-            "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-            '-DOIDN_ARCH="X64"'
-            "-DOIDN_FILTER_RTLIGHTMAP=OFF"
-        )
+        # # Build once for x86-64 with DNNL
+        # build "oidn" @(
+        #     "-DTBB_ROOT=../../install/$OS"
+        #     "-DISPC_EXECUTABLE=$ispc"
+        #     "-DISPC_VERSION=$ispcVersion"
+        #     "-DOIDN_APPS=OFF"
+        #     "-DOIDN_ZIP_MODE=ON"
+        #     '-DOIDN_NEURAL_RUNTIME="DNNL"'
+        #     '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+        #     '-DOIDN_ARCH="X64"'
+        #     "-DOIDN_FILTER_RTLIGHTMAP=OFF"
+        # )
 
         # And separately for ARM64 with BNNS
         build "oidn" @(
@@ -139,31 +139,31 @@ try {
             "-DOIDN_FILTER_RTLIGHTMAP=OFF"
         )
 
-        build "embree" @(
-            "-DEMBREE_ISPC_SUPPORT=OFF"
-            "-DEMBREE_ZIP_MODE=ON"
+        # build "embree" @(
+        #     "-DEMBREE_ISPC_SUPPORT=OFF"
+        #     "-DEMBREE_ZIP_MODE=ON"
 
-            # Disable all unused features to shorten build times
-            "-DEMBREE_TUTORIALS=OFF"
-            "-DEMBREE_FILTER_FUNCTION=OFF"
-            "-DEMBREE_GEOMETRY_QUAD=OFF"
-            "-DEMBREE_GEOMETRY_CURVE=OFF"
-            "-DEMBREE_GEOMETRY_GRID=OFF"
-            "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
-            "-DEMBREE_GEOMETRY_INSTANCE=OFF"
-            "-DEMBREE_GEOMETRY_USER=ON"
+        #     # Disable all unused features to shorten build times
+        #     "-DEMBREE_TUTORIALS=OFF"
+        #     "-DEMBREE_FILTER_FUNCTION=OFF"
+        #     "-DEMBREE_GEOMETRY_QUAD=OFF"
+        #     "-DEMBREE_GEOMETRY_CURVE=OFF"
+        #     "-DEMBREE_GEOMETRY_GRID=OFF"
+        #     "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
+        #     "-DEMBREE_GEOMETRY_INSTANCE=OFF"
+        #     "-DEMBREE_GEOMETRY_USER=ON"
 
-            # Enable only AVX and AVX2 for faster github actions deployment
-            "-DEMBREE_MAX_ISA=NONE"
-            "-DEMBREE_ISA_AVX2=ON"
-            "-DEMBREE_ISA_SSE2=OFF"
-            "-DEMBREE_ISA_SSE42=OFF"
-            "-DEMBREE_ISA_AVX512=OFF"
-            "-DEMBREE_ISA_AVX=ON"
+        #     # Enable only AVX and AVX2 for faster github actions deployment
+        #     "-DEMBREE_MAX_ISA=NONE"
+        #     "-DEMBREE_ISA_AVX2=ON"
+        #     "-DEMBREE_ISA_SSE2=OFF"
+        #     "-DEMBREE_ISA_SSE42=OFF"
+        #     "-DEMBREE_ISA_AVX512=OFF"
+        #     "-DEMBREE_ISA_AVX=ON"
 
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-            "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-        )
+        #     '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+        # )
 
         build "embree" @(
             "-DEMBREE_ISPC_SUPPORT=OFF"
@@ -183,14 +183,14 @@ try {
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
-        build "openpgl" @(
-            "-DTBB_ROOT=../../install/$OS"
-            "-DOPENPGL_TBB_ROOT=../../install/$OS"
-            "-DCMAKE_PREFIX_PATH=../../install/$OS"
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
-            "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-            $rpath
-        )
+        # build "openpgl" @(
+        #     "-DTBB_ROOT=../../install/$OS"
+        #     "-DOPENPGL_TBB_ROOT=../../install/$OS"
+        #     "-DCMAKE_PREFIX_PATH=../../install/$OS"
+        #     '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+        #     "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+        #     $rpath
+        # )
 
         build "openpgl" @(
             "-DTBB_ROOT=../../install/$OS-arm64"
