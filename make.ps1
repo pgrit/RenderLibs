@@ -19,10 +19,10 @@ try {
     rpathPatch(Get-Content -path oidn/cmake/oidn_package.cmake -Raw) | Set-Content -path oidn/cmake/oidn_package.cmake
 
     # Path OIDN CMake files for cross-compile on Mac
-    $patch = (Get-Content -path oidn/cmake/oidn_platform.cmake -Raw)
-    $patch = $patch.Replace('set(OIDN_ARCH "ARM64")', 'set(OIDN_ARCH "ARM64" CACHE STRING " ")')
-    $patch = $patch.Replace('set(OIDN_ARCH "X64")', 'set(OIDN_ARCH "X64" CACHE STRING " ")')
-    Set-Content -path oidn/cmake/oidn_platform.cmake $patch
+    # $patch = (Get-Content -path oidn/cmake/oidn_platform.cmake -Raw)
+    # $patch = $patch.Replace('set(OIDN_ARCH "ARM64")', 'set(OIDN_ARCH "ARM64" CACHE STRING " ")')
+    # $patch = $patch.Replace('set(OIDN_ARCH "X64")', 'set(OIDN_ARCH "X64" CACHE STRING " ")')
+    # Set-Content -path oidn/cmake/oidn_platform.cmake $patch
 
     cd build
 
