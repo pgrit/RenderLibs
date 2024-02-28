@@ -45,10 +45,10 @@ try {
 
         if (-not(Test-Path -Path "ispc.zip" -PathType Leaf))
         {
-            wget -q "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-macOS.tar.gz" -O "ispc.tar.gz"
+            wget -q "https://github.com/ispc/ispc/releases/download/v$ispcVersion/ispc-v$ispcVersion-macOS.universal.tar.gz" -O "ispc.tar.gz"
             tar -xf ispc.tar.gz
         }
-        $ispc = Resolve-Path "./ispc-v$ispcVersion-macOS/bin/ispc"
+        $ispc = Resolve-Path "./ispc-v$ispcVersion-macOS.universal/bin/ispc"
     }
     elseif ([environment]::OSVersion::IsWindows())
     {
