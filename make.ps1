@@ -18,11 +18,16 @@ try {
     rpathPatch(Get-Content -path embree/common/cmake/package.cmake -Raw) | Set-Content -path embree/common/cmake/package.cmake
     rpathPatch(Get-Content -path oidn/cmake/oidn_package.cmake -Raw) | Set-Content -path oidn/cmake/oidn_package.cmake
 
-    # Path OIDN CMake files for cross-compile on Mac
+    # Patch OIDN CMake files for cross-compile on Mac
     $patch = (Get-Content -path oidn/cmake/oidn_platform.cmake -Raw)
     $patch = $patch.Replace('set(OIDN_ARCH "ARM64")', 'set(OIDN_ARCH "ARM64" CACHE STRING " ")')
     $patch = $patch.Replace('set(OIDN_ARCH "X64")', 'set(OIDN_ARCH "X64" CACHE STRING " ")')
     Set-Content -path oidn/cmake/oidn_platform.cmake $patch
+
+    # Patch embree CMake files for cross-compile on Mac
+    $patch = (Get-Content -path embree/CMakeLists.txt -Raw)
+    $patch = $patch.Replace('SET(EMBREE_ARM ON)', 'OPTION(EMBREE_ARM " " ON)')
+    Set-Content -path embree/CMakeLists.txt $patch
 
     cd build
 
@@ -96,7 +101,6 @@ try {
         $rpath = '-DCMAKE_INSTALL_RPATH=@loader_path'
     }
 
-    # Neural runtimes for OIDN on Mac require separate binaries for arm64 and x86-64
     if ([environment]::OSVersion::IsMacOS())
     {
         build "oneTBB" @(
@@ -105,7 +109,6 @@ try {
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         )
 
-        # Build once for x86-64 with DNNL
         build "oidn" @(
             "-DTBB_ROOT=../../install/$OS"
             "-DISPC_EXECUTABLE=$ispc"
@@ -118,7 +121,6 @@ try {
             "-DOIDN_FILTER_RTLIGHTMAP=OFF"
         )
 
-        # And separately for ARM64 with BNNS
         build "oidn" @(
             "-DTBB_ROOT=../../install/$OS"
             "-DISPC_EXECUTABLE=$ispc"
@@ -153,6 +155,8 @@ try {
             "-DEMBREE_ISA_AVX512=OFF"
             "-DEMBREE_ISA_AVX=ON"
 
+            "-DEMBREE_ARM=OFF"
+
             '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         )
@@ -170,6 +174,8 @@ try {
             "-DEMBREE_GEOMETRY_SUBDIVISION=OFF"
             "-DEMBREE_GEOMETRY_INSTANCE=OFF"
             "-DEMBREE_GEOMETRY_USER=ON"
+
+            "-DEMBREE_ARM=ON"
 
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
