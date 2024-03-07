@@ -29,6 +29,12 @@ try {
     $patch = $patch.Replace('SET(EMBREE_ARM ON)', 'OPTION(EMBREE_ARM " " ON)')
     Set-Content -path embree/CMakeLists.txt $patch
 
+    # Patch openpgl CMake files for cross-compile on Mac
+    $patch = (Get-Content -path openpgl/CMakeLists.txt -Raw)
+    $patch = $patch.Replace('SET(OPENPGL_ARM ON)', ' ')
+    $patch = $patch.Replace('SET(OPENPGL_ARM OFF)', 'OPTION(OPENPGL_ARM " " OFF)')
+    Set-Content -path openpgl/CMakeLists.txt $patch
+
     cd build
 
     # Download ISPC
@@ -187,6 +193,7 @@ try {
             "-DCMAKE_PREFIX_PATH=../../install/$OS"
             '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+            "-DOPENPGL_ARM=OFF"
             $rpath
         )
 
@@ -196,6 +203,7 @@ try {
             "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
+            "-DOPENPGL_ARM=ON"
             $rpath
         )
     }
