@@ -101,14 +101,8 @@ try {
     {
         build "oneTBB" @(
             "-DTBB_TEST=OFF"
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+            '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
-        )
-
-        build "oneTBB" @(
-            "-DTBB_TEST=OFF"
-            '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-            "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
         # Build once for x86-64 with DNNL
@@ -118,7 +112,6 @@ try {
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
             "-DOIDN_ZIP_MODE=ON"
-            '-DOIDN_NEURAL_RUNTIME="DNNL"'
             '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
             '-DOIDN_ARCH="X64"'
@@ -127,12 +120,11 @@ try {
 
         # And separately for ARM64 with BNNS
         build "oidn" @(
-            "-DTBB_ROOT=../../install/$OS-arm64"
+            "-DTBB_ROOT=../../install/$OS"
             "-DISPC_EXECUTABLE=$ispc"
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
             "-DOIDN_ZIP_MODE=ON"
-            '-DOIDN_NEURAL_RUNTIME="BNNS"'
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
             '-DOIDN_ARCH="ARM64"'
