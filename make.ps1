@@ -35,6 +35,22 @@ try {
     $patch = $patch.Replace('SET(OPENPGL_ARM OFF)', 'OPTION(OPENPGL_ARM " " OFF)')
     Set-Content -path openpgl/CMakeLists.txt $patch
 
+    # Patch DLL flags for windows to find the DLL also next to the linking one
+    # (roughly the equivalent of RPATH = '.')
+    function dllLoadPatch($filename)
+    {
+        $oldLoadFlags = '/DEPENDENTLOADFLAG:0x2000'
+        $newLoadFlags = '/DEPENDENTLOADFLAG:0x2100'
+
+        $patch = (Get-Content -path $filename -Raw)
+        $patch = $patch.Replace($oldLoadFlags, $newLoadFlags)
+        Set-Content -path $filename $patch
+    }
+    dllLoadPatch("embree/common/cmake/dpcpp.cmake")
+    dllLoadPatch("embree/common/cmake/msvc.cmake")
+    dllLoadPatch("oidn/cmake/oidn_platform.cmake")
+    dllLoadPatch("openpgl/CMakeLists.txt")
+
     cd build
 
     # Download ISPC
