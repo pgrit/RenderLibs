@@ -134,8 +134,14 @@ try {
     {
         build "oneTBB" @(
             "-DTBB_TEST=OFF"
-            '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"'
+            '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+        )
+
+        build "oneTBB" @(
+            "-DTBB_TEST=OFF"
+            '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+            "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
         build "oidn" @(
@@ -151,7 +157,7 @@ try {
         )
 
         build "oidn" @(
-            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
+            "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
             "-DISPC_EXECUTABLE=$ispc"
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
@@ -208,7 +214,7 @@ try {
             "-DEMBREE_ARM=ON"
 
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
-            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
+            "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
@@ -221,7 +227,7 @@ try {
         )
 
         build "openpgl" @(
-            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
+            "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
             "-DOPENPGL_ARM=ON"
