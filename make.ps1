@@ -139,7 +139,7 @@ try {
         )
 
         build "oidn" @(
-            "-DTBB_ROOT=../../install/$OS"
+            "-DCMAKE_PREFIX_PATH=../../install/$OS"
             "-DISPC_EXECUTABLE=$ispc"
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
@@ -151,7 +151,7 @@ try {
         )
 
         build "oidn" @(
-            "-DTBB_ROOT=../../install/$OS"
+            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
             "-DISPC_EXECUTABLE=$ispc"
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
@@ -187,6 +187,7 @@ try {
             "-DEMBREE_ARM=OFF"
 
             '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
+            "-DCMAKE_PREFIX_PATH=../../install/$OS"
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
         )
 
@@ -207,12 +208,11 @@ try {
             "-DEMBREE_ARM=ON"
 
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
+            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
         )
 
         build "openpgl" @(
-            "-DTBB_ROOT=../../install/$OS"
-            "-DOPENPGL_TBB_ROOT=../../install/$OS"
             "-DCMAKE_PREFIX_PATH=../../install/$OS"
             '-DCMAKE_OSX_ARCHITECTURES="x86_64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
@@ -221,9 +221,7 @@ try {
         )
 
         build "openpgl" @(
-            "-DTBB_ROOT=../../install/$OS-arm64"
-            "-DOPENPGL_TBB_ROOT=../../install/$OS-arm64"
-            "-DCMAKE_PREFIX_PATH=../../install/$OS-arm64"
+            "-DCMAKE_PREFIX_PATH=../../install/$OS" # TBB is a fat binary with both arm and x86
             '-DCMAKE_OSX_ARCHITECTURES="arm64"'
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS-arm64"
             "-DOPENPGL_ARM=ON"
@@ -238,7 +236,7 @@ try {
         )
 
         build "oidn" @(
-            "-DTBB_ROOT=../../install/$OS"
+            "-DCMAKE_PREFIX_PATH=../../install/$OS"
             "-DISPC_EXECUTABLE=$ispc"
             "-DISPC_VERSION=$ispcVersion"
             "-DOIDN_APPS=OFF"
@@ -271,11 +269,10 @@ try {
             "-DEMBREE_ISA_NEON=ON"
 
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
+            "-DCMAKE_PREFIX_PATH=../../install/$OS"
         )
 
         build "openpgl" @(
-            "-DTBB_ROOT=../../install/$OS"
-            "-DOPENPGL_TBB_ROOT=../../install/$OS"
             "-DCMAKE_PREFIX_PATH=../../install/$OS"
             "-DCMAKE_INSTALL_PREFIX=../../install/$OS"
             $rpath
