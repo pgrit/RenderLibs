@@ -40,7 +40,7 @@ try {
     # runtime libs for .NET (this ensures that linking logic is fully controlled by the linking .exe)
     function dllLoadPatch($filename)
     {
-        searchAndReplace $filename '/DEPENDENTLOADFLAG:0x2000' '/DEPENDENTLOADFLAG:0x0000'
+        searchAndReplace $filename '/DEPENDENTLOADFLAG:0x2000' '/DEPENDENTLOADFLAG:0x2100'
     }
     dllLoadPatch "embree/common/cmake/dpcpp.cmake"
     dllLoadPatch "embree/common/cmake/msvc.cmake"
