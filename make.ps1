@@ -1,55 +1,56 @@
 $rootPath = Get-Location
 
+function Ensure-Dir {
+    param(
+        [string] $path
+    )
+    New-Item -ItemType Directory -Force $path > $null
+}
+
 try {
 
-    mkdir install
-    mkdir build
+    Ensure-Dir install
+    Ensure-Dir build
+
+    function searchAndReplace($filename, $oldText, $newText)
+    {
+        $patch = (Get-Content -Path $filename -Raw)
+        $patch = $patch.Replace($oldText, $newText)
+        Set-Content -Path $filename $patch
+    }
 
     # Patch the Embree and OIDN CMake files to have a more useful RPATH
-    function rpathPatch($content)
-    {
-        $oldMac = '"@loader_path/../'
-        $newMac = '"@loader_path;@loader_path/../'
-        $oldLinux = '"$ORIGIN/../'
-        $newLinux = '"$ORIGIN;$ORIGIN/../'
-        return $content.Replace("$oldMac", "$newMac").Replace("$oldLinux", "$newLinux")
-    }
-
-    rpathPatch(Get-Content -path embree/common/cmake/package.cmake -Raw) | Set-Content -path embree/common/cmake/package.cmake
-    rpathPatch(Get-Content -path oidn/cmake/oidn_package.cmake -Raw) | Set-Content -path oidn/cmake/oidn_package.cmake
+    searchAndReplace "embree/common/cmake/package.cmake" '"@loader_path/../' '"@loader_path;@loader_path/../'
+    searchAndReplace "embree/common/cmake/package.cmake" '"$ORIGIN/../' '"$ORIGIN;$ORIGIN/../'
+    searchAndReplace "oidn/cmake/oidn_package.cmake" '"@loader_path/../' '"@loader_path;@loader_path/../'
+    searchAndReplace "oidn/cmake/oidn_package.cmake" '"$ORIGIN/../' '"$ORIGIN;$ORIGIN/../'
 
     # Patch OIDN CMake files for cross-compile on Mac
-    $patch = (Get-Content -path oidn/cmake/oidn_platform.cmake -Raw)
-    $patch = $patch.Replace('set(OIDN_ARCH "ARM64")', 'set(OIDN_ARCH "ARM64" CACHE STRING " ")')
-    $patch = $patch.Replace('set(OIDN_ARCH "X64")', 'set(OIDN_ARCH "X64" CACHE STRING " ")')
-    Set-Content -path oidn/cmake/oidn_platform.cmake $patch
+    searchAndReplace "oidn/cmake/oidn_platform.cmake" 'set(OIDN_ARCH "ARM64")' 'set(OIDN_ARCH "ARM64" CACHE STRING " ")'
+    searchAndReplace "oidn/cmake/oidn_platform.cmake" 'set(OIDN_ARCH "X64")' 'set(OIDN_ARCH "X64" CACHE STRING " ")'
 
     # Patch embree CMake files for cross-compile on Mac
-    $patch = (Get-Content -path embree/CMakeLists.txt -Raw)
-    $patch = $patch.Replace('SET(EMBREE_ARM ON)', 'OPTION(EMBREE_ARM " " ON)')
-    Set-Content -path embree/CMakeLists.txt $patch
+    searchAndReplace "embree/CMakeLists.txt" 'SET(EMBREE_ARM ON)' 'OPTION(EMBREE_ARM " " ON)'
 
     # Patch openpgl CMake files for cross-compile on Mac
-    $patch = (Get-Content -path openpgl/CMakeLists.txt -Raw)
-    $patch = $patch.Replace('SET(OPENPGL_ARM ON)', ' ')
-    $patch = $patch.Replace('SET(OPENPGL_ARM OFF)', 'OPTION(OPENPGL_ARM " " OFF)')
-    Set-Content -path openpgl/CMakeLists.txt $patch
+    searchAndReplace "openpgl/CMakeLists.txt" 'SET(OPENPGL_ARM ON)' ' '
+    searchAndReplace "openpgl/CMakeLists.txt" 'SET(OPENPGL_ARM OFF)' 'OPTION(OPENPGL_ARM " " OFF)'
 
-    # Patch DLL flags for windows to find the DLL also next to the linking one
-    # (roughly the equivalent of RPATH = '.')
+    # Revert the DLL load flags for windows so that dependencies will be found when packages as native
+    # runtime libs for .NET (this ensures that linking logic is fully controlled by the linking .exe)
     function dllLoadPatch($filename)
     {
-        $oldLoadFlags = '/DEPENDENTLOADFLAG:0x2000'
-        $newLoadFlags = '/DEPENDENTLOADFLAG:0x2100'
-
-        $patch = (Get-Content -path $filename -Raw)
-        $patch = $patch.Replace($oldLoadFlags, $newLoadFlags)
-        Set-Content -path $filename $patch
+        searchAndReplace $filename '/DEPENDENTLOADFLAG:0x2000' '/DEPENDENTLOADFLAG:0x0000'
     }
-    dllLoadPatch("embree/common/cmake/dpcpp.cmake")
-    dllLoadPatch("embree/common/cmake/msvc.cmake")
-    dllLoadPatch("oidn/cmake/oidn_platform.cmake")
-    dllLoadPatch("openpgl/CMakeLists.txt")
+    dllLoadPatch "embree/common/cmake/dpcpp.cmake"
+    dllLoadPatch "embree/common/cmake/msvc.cmake"
+    dllLoadPatch "oidn/cmake/oidn_platform.cmake"
+    dllLoadPatch "openpgl/CMakeLists.txt"
+
+    # Patch OIDN's device .dll loading code so it will search for tbb12.dll in the same dir that contains the _device.dll
+    $oldLoadCode = "void* module = LoadLibraryW(path.c_str());"
+    $newLoadCode = "void* module = LoadLibraryExW(path.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);"
+    searchAndReplace "oidn/core/module.cpp" $oldLoadCode $newLoadCode
 
     cd build
 
