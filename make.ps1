@@ -40,7 +40,7 @@ try {
     # runtime libs for .NET (this ensures that linking logic is fully controlled by the linking .exe)
     function dllLoadPatch($filename)
     {
-        searchAndReplace $filename '/DEPENDENTLOADFLAG:0x2000' '/DEPENDENTLOADFLAG:0x2100'
+        searchAndReplace $filename '/DEPENDENTLOADFLAG:0x2000' '/DEPENDENTLOADFLAG:0x0000'
     }
     dllLoadPatch "embree/common/cmake/dpcpp.cmake"
     dllLoadPatch "embree/common/cmake/msvc.cmake"
@@ -49,7 +49,7 @@ try {
 
     # Patch OIDN's device .dll loading code so it will search for tbb12.dll in the same dir that contains the _device.dll
     $oldLoadCode = "void* module = LoadLibraryW(path.c_str());"
-    $newLoadCode = "void* module = LoadLibraryExW(path.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);"
+    $newLoadCode = "void* module = LoadLibraryExW(path.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);"
     searchAndReplace "oidn/core/module.cpp" $oldLoadCode $newLoadCode
 
     cd build
@@ -102,6 +102,12 @@ try {
 
     function build($name, [String[]]$cmakeArgs)
     {
+        # Make sure we have no stale build files flying around
+        if (Test-Path $name)
+        {
+            Remove-Item -Recurse -Force $name
+        }
+
         mkdir "$name"
         cd "$name"
         echo $cmakeArgs
